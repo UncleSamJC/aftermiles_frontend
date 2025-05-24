@@ -1,7 +1,8 @@
 import { Stack } from "expo-router";
-import "./globals.css";
-
+import { useColorScheme } from "react-native";
 
 export default function RootLayout() {
-  return <Stack />;
+  const colorScheme = useColorScheme();
+
+  return <Stack screenOptions={{ headerShown: false }} />;
 }
