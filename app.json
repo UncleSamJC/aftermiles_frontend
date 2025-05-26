@@ -1,7 +1,7 @@
 {
   "expo": {
-    "name": "mobile_movie_appii",
-    "slug": "mobile_movie_appii",
+    "name": "aftermiles_frontend",
+    "slug": "aftermiles_frontend",
     "version": "1.0.0",
     "orientation": "portrait",
     "icon": "./assets/images/icon.png",
@@ -28,7 +28,7 @@
       [
         "expo-splash-screen",
         {
-          "image": "./assets/images/splash-icon.png",
+          "image": "./assets/images/splash-icon2.png",
           "imageWidth": 200,
           "resizeMode": "contain",
           "backgroundColor": "#ffffff"
