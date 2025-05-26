@@ -1,17 +1,57 @@
 import { Ionicons } from '@expo/vector-icons';
 import { Link, router } from 'expo-router';
 import { useState } from 'react';
-import { Keyboard, Text, TextInput, TouchableOpacity, TouchableWithoutFeedback, View } from 'react-native';
+import { Alert, Keyboard, Text, TextInput, TouchableOpacity, TouchableWithoutFeedback, View } from 'react-native';
 import { PrimaryButton } from '../../components/ui/PrimaryButton';
+import { authService } from '../../services/authService';
 
 export default function Login() {
   const [email, setEmail] = useState('');
   const [password, setPassword] = useState('');
+  const [loading, setLoading] = useState(false);
 
-  const handleLogin = () => {
-    // 暂时不验证用户名和密码
-    console.log('Continue without verification');
-    router.push('/(tabs)/dashboard');
+  const validateForm = () => {
+    if (!email || !password) {
+      Alert.alert('Error', 'Please fill in all fields');
+      return false;
+    }
+
+    // Basic email validation
+    const emailRegex = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
+    if (!emailRegex.test(email)) {
+      Alert.alert('Error', 'Please enter a valid email address');
+      return false;
+    }
+
+    return true;
+  };
+
+  const handleLogin = async () => {
+    if (!validateForm()) return;
+
+    try {
+      setLoading(true);
+      const { user } = await authService.signIn(email, password);
+      
+      if (!user?.email_confirmed_at) {
+        Alert.alert(
+          'Email Not Verified',
+          'Please check your email and verify your account before logging in.',
+          [{ text: 'OK' }]
+        );
+        return;
+      }
+
+      router.push('/(tabs)/dashboard');
+    } catch (error: any) {
+      console.error('Login error:', error);
+      Alert.alert(
+        'Login Failed',
+        error.message || 'An error occurred during login'
+      );
+    } finally {
+      setLoading(false);
+    }
   };
 
   return (
@@ -19,7 +59,7 @@ export default function Login() {
       <View className="flex-1 bg-white p-6">
         {/* Header */}
         <View className="flex-row items-center mb-12 mt-10">
-          <Link href="/" asChild>
+          <Link href="/" replace asChild>
             <TouchableOpacity 
               className="flex-row items-center py-3 px-2 -mx-2" 
               hitSlop={{ top: 15, bottom: 15, left: 15, right: 15 }}
@@ -52,6 +92,7 @@ export default function Login() {
               keyboardType="email-address"
               value={email}
               onChangeText={setEmail}
+              editable={!loading}
             />
           </View>
 
@@ -66,19 +107,21 @@ export default function Login() {
               secureTextEntry
               value={password}
               onChangeText={setPassword}
+              editable={!loading}
             />
           </View>
 
           <PrimaryButton 
             title="Continue"
             onPress={handleLogin}
+            loading={loading}
           />
 
           {/* Sign up link */}
           <View className="mt-6">
             <Text className="text-gray-600 text-center text-base">
               Not a user yet?{' '}
-              <Link href="/signup" asChild>
+              <Link href="/signup" replace asChild>
                 <Text className="text-teal-500 font-medium">
                   Sign up here
                 </Text>

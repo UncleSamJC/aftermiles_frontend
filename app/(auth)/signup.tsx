@@ -63,7 +63,7 @@ export default function Signup() {
       <View className="flex-1 bg-white p-6">
         {/* Header */}
         <View className="flex-row items-center mb-12 mt-10">
-          <Link href="/login" asChild>
+          <Link href="/login" replace asChild>
             <TouchableOpacity 
               className="flex-row items-center py-3 px-2 -mx-2" 
               hitSlop={{ top: 15, bottom: 15, left: 15, right: 15 }}
@@ -129,7 +129,7 @@ export default function Signup() {
 
           <PrimaryButton 
             title="Create Account"
-            onPress={handleSignup}
+            onPress={handleSignupWithEmail}
             loading={loading}
           />
 
@@ -137,7 +137,7 @@ export default function Signup() {
           <View className="mt-6">
             <Text className="text-gray-600 text-center text-base">
               Already have an account?{' '}
-              <Link href="/login" asChild>
+              <Link href="/login" replace asChild>
                 <Text className="text-teal-500 font-medium">
                   Log in here
                 </Text>
