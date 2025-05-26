@@ -11,7 +11,7 @@ export default function Login() {
   const handleLogin = () => {
     // 暂时不验证用户名和密码
     console.log('Continue without verification');
-    router.push('/(tabs)/home');
+    router.push('/(tabs)/dashboard');
   };
 
   return (
@@ -73,6 +73,18 @@ export default function Login() {
             title="Continue"
             onPress={handleLogin}
           />
+
+          {/* Sign up link */}
+          <View className="mt-6">
+            <Text className="text-gray-600 text-center text-base">
+              Not a user yet?{' '}
+              <Link href="/signup" asChild>
+                <Text className="text-teal-500 font-medium">
+                  Sign up here
+                </Text>
+              </Link>
+            </Text>
+          </View>
         </View>
       </View>
     </TouchableWithoutFeedback>
