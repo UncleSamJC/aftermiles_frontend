@@ -1,4 +1,5 @@
 import { Ionicons } from '@expo/vector-icons';
+import AsyncStorage from '@react-native-async-storage/async-storage';
 import { Link, router } from 'expo-router';
 import { useState } from 'react';
 import { Alert, Keyboard, Text, TextInput, TouchableOpacity, TouchableWithoutFeedback, View } from 'react-native';
@@ -31,7 +32,10 @@ export default function Login() {
 
     try {
       setLoading(true);
+      console.log('Attempting login with email:', email);
       const { user } = await authService.signIn(email, password);
+      
+      console.log('Login successful, user:', user);
       
       if (!user?.email_confirmed_at) {
         Alert.alert(
@@ -41,6 +45,12 @@ export default function Login() {
         );
         return;
       }
+
+      // 验证用户数据是否已存储
+      const storedUser = await AsyncStorage.getItem('user');
+      const authToken = await AsyncStorage.getItem('authToken');
+      console.log('Stored user data:', storedUser);
+      console.log('Auth token exists:', !!authToken);
 
       router.push('/(tabs)/dashboard');
     } catch (error: any) {
