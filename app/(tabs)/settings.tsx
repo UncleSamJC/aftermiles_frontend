@@ -1,6 +1,7 @@
 import { Ionicons } from '@expo/vector-icons';
 import { router } from 'expo-router';
-import { ScrollView, Text, TouchableOpacity, View } from 'react-native';
+import { Alert, ScrollView, Text, TouchableOpacity, View } from 'react-native';
+import { useAuth } from '../../hooks/useAuth';
 
 // 定义设置项组件
 interface SettingItemProps {
@@ -37,8 +38,20 @@ const SectionTitle = ({ title }: { title: string }) => (
 );
 
 export default function Settings() {
+  const { signOut } = useAuth();
+  
   const navigateToSettings = (path: string) => {
     router.push(`/(settings)/${path}` as any);
+  };
+
+  const handleSignOut = async () => {
+    try {
+      await signOut();
+      // 退出成功后重定向到登录页面
+      router.replace('/(auth)/login');
+    } catch (error) {
+      Alert.alert('Error', 'Failed to sign out. Please try again.');
+    }
   };
 
   return (
@@ -46,8 +59,8 @@ export default function Settings() {
       <View className="px-4 py-2 bg-gray-50">
         <Text className="text-gray-500 text-2xl text-center">Version 1.0.0</Text>
       </View>
-      {/* ==================ACCOUNT Section ================== */}
-      <SectionTitle title="ACCOUNT" />
+      {/* ==================GENERAL Section ================== */}
+      <SectionTitle title="GENERAL" />
       <SettingItem
         icon={<Ionicons name="settings-outline" size={24} color="#4B9CFF" />}
         title="My Profile"
@@ -132,7 +145,10 @@ export default function Settings() {
       />
 
       {/* ==================Sign Out Button ================== */}
-      <TouchableOpacity className="mt-6 mb-8 mx-4">
+      <TouchableOpacity 
+        className="mt-6 mb-8 mx-4"
+        onPress={handleSignOut}
+      >
         <Text className="text-center text-pink-500 text-base">Sign Out</Text>
       </TouchableOpacity>
     </ScrollView>

@@ -19,5 +19,4 @@ USING (auth.uid() = id)
 WITH CHECK (auth.uid() = id);
 
 -- Grant necessary permissions
-GRANT ALL ON user_profiles TO authenticated;
-GRANT USAGE ON SEQUENCE user_profiles_id_seq TO authenticated; 
+GRANT INSERT,UPDATE,SELECT ON user_profiles TO authenticated;

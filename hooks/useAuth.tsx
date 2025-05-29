@@ -1,6 +1,7 @@
+import { AuthChangeEvent, Session, User } from '@supabase/supabase-js';
 import { useEffect, useState } from 'react';
 import { authService } from '../services/authService';
-import { User } from '../types';
+import { auth } from '../services/supabasev2';
 
 export function useAuth() {
   const [user, setUser] = useState<User | null>(null);
@@ -8,14 +9,33 @@ export function useAuth() {
 
   useEffect(() => {
     checkUser();
+
+    // 监听认证状态变化
+    const { data: { subscription } } = auth.onAuthStateChange(
+      (_event: AuthChangeEvent, session: Session | null) => {
+        if (session?.user) {
+          setUser(session.user);
+        } else {
+          setUser(null);
+        }
+        setLoading(false);
+      }
+    );
+
+    return () => {
+      subscription.unsubscribe();
+    };
   }, []);
 
   const checkUser = async () => {
     try {
-      const { data: { user } } = await authService.getCurrentUser();
-      setUser(user);
+      const response = await authService.getCurrentUser();
+      if (response.user) {
+        setUser(response.user);
+      }
     } catch (error) {
       console.error('Error checking user:', error);
+      setUser(null);
     } finally {
       setLoading(false);
     }

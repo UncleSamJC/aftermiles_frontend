@@ -1,8 +1,9 @@
 import { Ionicons } from '@expo/vector-icons';
 import { router } from 'expo-router';
 import { useEffect, useState } from 'react';
-import { ScrollView, Switch, Text, TextInput, TouchableOpacity, View } from 'react-native';
-import { useUser } from '../hooks/useUser';
+import { Alert, ScrollView, Switch, Text, TextInput, TouchableOpacity, View } from 'react-native';
+import { useAuth } from '../../hooks/useAuth';
+import { db } from '../../services/supabasev2';
 
 interface InputRowProps {
   label: string;
@@ -49,22 +50,124 @@ const InputRow = ({
 );
 
 export default function ProfileSettings() {
-  const { user, loading } = useUser();
+  const { user: authUser } = useAuth();
   const [firstName, setFirstName] = useState('');
   const [lastName, setLastName] = useState('');
   const [email, setEmail] = useState('');
   const [mobile, setMobile] = useState('');
   const [ratePerMile, setRatePerMile] = useState('0.7');
   const [useKilometers, setUseKilometers] = useState(false);
+  const [isFormChanged, setIsFormChanged] = useState(false);
+  const [isSaving, setIsSaving] = useState(false);
+  const [loading, setLoading] = useState(true);
 
   useEffect(() => {
-    if (user?.email) {
-      setEmail(user.email);
+    if (authUser) {
+      getProfile();
+    } else {
+      console.log('No user available');
+      setLoading(false);
     }
-  }, [user]);
+  }, [authUser]);
+
+  async function getProfile() {
+    try {
+      setLoading(true);
+      if (!authUser) {
+        console.log('No user in auth');
+        throw new Error('No user available!');
+      }
+
+      // Set email immediately since we have it in auth
+      setEmail(authUser.email || '');
+      console.log('Setting email:', authUser.email);
+
+      const { data, error, status } = await db
+        .from('user_profiles')
+        .select(`first_name, last_name, phone, email`)
+        .eq('id', authUser.id)
+        .single();
+      
+      console.log('Profile data:', data);
+      console.log('Profile error:', error);
+      console.log('Profile status:', status);
+
+      if (error && status !== 406) {
+        throw error;
+      }
+      if (data) {
+        setFirstName(data.first_name || '');
+        setLastName(data.last_name || '');
+        setMobile(data.phone || '');
+        setEmail(data.email || '');
+      }
+    } catch (error) {
+      if (error instanceof Error) {
+        Alert.alert(error.message);
+      }
+      console.error('Error in getProfile:', error);
+    } finally {
+      setLoading(false);
+    }
+  }
+
+  async function updateProfile({
+    first_name,
+    last_name,
+    phone,
+  }: {
+    first_name: string
+    last_name: string
+    phone: string
+  }) {
+    try {
+      setLoading(true);
+      if (!authUser) throw new Error('No user available!');
+      const updates = {
+        id: authUser.id,
+        first_name,
+        last_name,
+        phone,
+        updated_at: new Date(),
+      };
+      const { error } = await db.from('user_profiles').upsert(updates);
+      if (error) {
+        throw error;
+      }
+    } catch (error) {
+      if (error instanceof Error) {
+        Alert.alert(error.message);
+      }
+    } finally {
+      setLoading(false);
+    }
+  }
 
   const handleBack = () => {
     router.back();
+  };
+
+  const handleSave = async () => {
+    if (!isFormChanged || isSaving) return;
+    
+    setIsSaving(true);
+    try {
+      await updateProfile({
+        first_name: firstName.trim(),
+        last_name: lastName.trim(),
+        phone: mobile.trim()
+      });
+      setIsFormChanged(false);
+    } catch (error) {
+      console.error('Error saving profile:', error);
+    } finally {
+      setIsSaving(false);
+    }
+  };
+
+  const handleInputChange = (setter: (value: string) => void, value: string) => {
+    setter(value);
+    setIsFormChanged(true);
   };
 
   const formatPhoneNumber = (text: string) => {
@@ -78,7 +181,7 @@ export default function ProfileSettings() {
   };
 
   const handlePhoneChange = (text: string) => {
-    setMobile(formatPhoneNumber(text));
+    handleInputChange(setMobile, formatPhoneNumber(text));
   };
 
   const handleDeleteAccount = () => {
@@ -105,8 +208,14 @@ export default function ProfileSettings() {
           <Ionicons name="chevron-back" size={24} color="#000000" />
         </TouchableOpacity>
         <Text className="flex-1 text-xl">My Profile</Text>
-        <TouchableOpacity className="px-4">
-          <Text className="text-gray-400 text-base">Save</Text>
+        <TouchableOpacity 
+          className="px-4" 
+          onPress={handleSave}
+          disabled={!isFormChanged || isSaving}
+        >
+          <Text className={`text-base ${isFormChanged ? 'text-green-500' : 'text-gray-400'}`}>
+            {isSaving ? 'Saving...' : 'Save'}
+          </Text>
         </TouchableOpacity>
       </View>
 
@@ -116,14 +225,14 @@ export default function ProfileSettings() {
           <InputRow
             label="First Name"
             value={firstName}
-            onChangeText={setFirstName}
+            onChangeText={(text) => handleInputChange(setFirstName, text)}
             placeholder="first name"
           />
           
           <InputRow
             label="Last Name"
             value={lastName}
-            onChangeText={setLastName}
+            onChangeText={(text) => handleInputChange(setLastName, text)}
             placeholder="last name"
           />
           

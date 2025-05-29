@@ -4,7 +4,7 @@ import { GoTrueClient } from '@supabase/gotrue-js'; // Auth client
 import { PostgrestClient } from '@supabase/postgrest-js'; // DB client
 import 'react-native-url-polyfill/auto'; // Ensures URL polyfill for fetch
 
-// Initialize Supabase client
+//  Supabase Config
 const supabaseUrl = process.env.EXPO_PUBLIC_SUPABASE_URL || "";
 const supabaseAnonKey = process.env.EXPO_PUBLIC_SUPABASE_ANON_KEY || "";
 
@@ -22,7 +22,8 @@ export const auth = new GoTrueClient({
   fetch,  // Use native fetch API for networking
 });
 
-// DB client setup (for querying data)
+
+// DB client setup (这个 db 对象是 Supabase 的 Postgrest 客户端，它提供了完整的数据库操作能力)
 export const db = new PostgrestClient(`${supabaseUrl}/rest/v1`, {
   headers: {
     apikey: supabaseAnonKey,
@@ -30,3 +31,6 @@ export const db = new PostgrestClient(`${supabaseUrl}/rest/v1`, {
   },
   fetch,  // Use native fetch API
 });
+
+
+
