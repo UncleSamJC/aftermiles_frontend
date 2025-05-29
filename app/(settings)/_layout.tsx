@@ -8,10 +8,10 @@ export default function SettingsLayout() {
       }}
     >
       <Stack.Screen name="index" />
-      <Stack.Screen name="profile" />
-      <Stack.Screen name="vehicle" />
+      <Stack.Screen name="myprofile" />
+      <Stack.Screen name="myvehicle" />
       <Stack.Screen name="data-export" />
-      <Stack.Screen name="refer" />
+      <Stack.Screen name="refer-friend" />
       <Stack.Screen name="hotspot" />
       <Stack.Screen name="places" />
       <Stack.Screen name="not-work" />

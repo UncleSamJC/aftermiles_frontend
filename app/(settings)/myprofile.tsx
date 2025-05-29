@@ -1,9 +1,15 @@
 import { Ionicons } from '@expo/vector-icons';
 import { router } from 'expo-router';
 import { useEffect, useState } from 'react';
-import { Alert, ScrollView, Switch, Text, TextInput, TouchableOpacity, View } from 'react-native';
+import { Alert, ScrollView, Text, TextInput, TouchableOpacity, View } from 'react-native';
 import { useAuth } from '../../hooks/useAuth';
 import { db } from '../../services/supabasev2';
+
+interface ProfileUpdateParams {
+  first_name: string;
+  last_name: string;
+  phone: string;
+}
 
 interface InputRowProps {
   label: string;
@@ -49,7 +55,7 @@ const InputRow = ({
   </View>
 );
 
-export default function ProfileSettings() {
+export default function MyProfileSettings() {
   const { user: authUser } = useAuth();
   const [firstName, setFirstName] = useState('');
   const [lastName, setLastName] = useState('');
@@ -62,13 +68,8 @@ export default function ProfileSettings() {
   const [loading, setLoading] = useState(true);
 
   useEffect(() => {
-    if (authUser) {
-      getProfile();
-    } else {
-      console.log('No user available');
-      setLoading(false);
-    }
-  }, [authUser]);
+    if (authUser) getProfile()
+  }, [authUser])
 
   async function getProfile() {
     try {
@@ -80,30 +81,27 @@ export default function ProfileSettings() {
 
       // Set email immediately since we have it in auth
       setEmail(authUser.email || '');
-      console.log('Setting email:', authUser.email);
 
       const { data, error, status } = await db
         .from('user_profiles')
         .select(`first_name, last_name, phone, email`)
         .eq('id', authUser.id)
         .single();
-      
-      console.log('Profile data:', data);
-      console.log('Profile error:', error);
-      console.log('Profile status:', status);
 
       if (error && status !== 406) {
         throw error;
       }
+
       if (data) {
-        setFirstName(data.first_name || '');
-        setLastName(data.last_name || '');
-        setMobile(data.phone || '');
-        setEmail(data.email || '');
+        const profile = data as UserProfile;
+        setFirstName(profile.first_name || '');
+        setLastName(profile.last_name || '');
+        setMobile(profile.phone || '');
+        setEmail(profile.email || '');
       }
     } catch (error) {
       if (error instanceof Error) {
-        Alert.alert(error.message);
+        Alert.alert('Error', 'Failed to load profile data. Please try again.');
       }
       console.error('Error in getProfile:', error);
     } finally {
@@ -111,35 +109,39 @@ export default function ProfileSettings() {
     }
   }
 
-  async function updateProfile({
-    first_name,
-    last_name,
-    phone,
-  }: {
-    first_name: string
-    last_name: string
-    phone: string
-  }) {
+  async function updateProfile({ first_name, last_name, phone }: ProfileUpdateParams) {
+    if (!authUser) {
+      Alert.alert('Error', 'No user available!');
+      return;
+    }
+
     try {
-      setLoading(true);
-      if (!authUser) throw new Error('No user available!');
-      const updates = {
+      console.log('Updating function is called...');
+      setIsSaving(true);
+      const updates: Partial<UserProfile> = {
         id: authUser.id,
         first_name,
         last_name,
         phone,
         updated_at: new Date(),
       };
+
       const { error } = await db.from('user_profiles').upsert(updates);
-      if (error) {
-        throw error;
-      }
+      
+      if (error) throw error;
+
+      Alert.alert('Success', 'Profile updated successfully');
+      setIsFormChanged(false);
+      
+      await getProfile();
+
     } catch (error) {
       if (error instanceof Error) {
-        Alert.alert(error.message);
+        Alert.alert('Error', 'Failed to update profile. Please try again.');
       }
+      console.error('Error in updateProfile:', error);
     } finally {
-      setLoading(false);
+      setIsSaving(false);
     }
   }
 
@@ -167,7 +169,9 @@ export default function ProfileSettings() {
 
   const handleInputChange = (setter: (value: string) => void, value: string) => {
     setter(value);
-    setIsFormChanged(true);
+    if (!isFormChanged) {
+      setIsFormChanged(true);
+    }
   };
 
   const formatPhoneNumber = (text: string) => {
@@ -222,6 +226,13 @@ export default function ProfileSettings() {
       {/* Content */}
       <ScrollView className="flex-1">
         <View className="p-4">
+
+        <InputRow
+            label="Email"
+            value={email}
+            editable={false}
+          />
+
           <InputRow
             label="First Name"
             value={firstName}
@@ -236,11 +247,7 @@ export default function ProfileSettings() {
             placeholder="last name"
           />
           
-          <InputRow
-            label="Email"
-            value={email}
-            editable={false}
-          />
+          
           
           <InputRow
             label="Mobile"
@@ -257,21 +264,7 @@ export default function ProfileSettings() {
             prefix="$"
           />
 
-          <View className="border-b border-gray-200 py-3">
-            <View className="flex-row items-center justify-between">
-              <View className="flex-row items-center">
-                <Text className="text-gray-600 text-base">Use Kilometers</Text>
-                <TouchableOpacity className="ml-2">
-                  <Ionicons name="information-circle-outline" size={20} color="#9CA3AF" />
-                </TouchableOpacity>
-              </View>
-              <Switch
-                value={useKilometers}
-                onValueChange={setUseKilometers}
-                trackColor={{ false: '#D1D5DB', true: '#10B981' }}
-              />
-            </View>
-          </View>
+          
         </View>
       </ScrollView>
 
