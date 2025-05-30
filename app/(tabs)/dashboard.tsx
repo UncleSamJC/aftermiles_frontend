@@ -1,104 +1,219 @@
-import { Ionicons } from '@expo/vector-icons';
-import { router } from 'expo-router';
-import { useEffect, useState } from 'react';
-import { Pressable, ScrollView, Text, View } from 'react-native';
+import { Ionicons } from "@expo/vector-icons";
+import { router } from "expo-router";
+import { useEffect, useState } from "react";
+import { Dimensions, Pressable, ScrollView, Text, View } from "react-native";
+import { PieChart } from "react-native-chart-kit";
 
-const MessageCard = ({ 
-  unclassifiedTrips, 
+// 模拟数据接口类型
+interface TripStats {
+  totalTrips: number;
+  totalKms: number;
+  workMiles: number;
+  personalMiles: number;
+  otherMiles: number;
+}
+
+// 模拟获取数据的函数
+const fetchTripStats = async (): Promise<TripStats> => {
+  // TODO: 实际实现从服务器获取数据
+  return {
+    totalTrips: 38,
+    totalKms: 5123.5,
+    workMiles: 2500,
+    personalMiles: 1800,
+    otherMiles: 823.5,
+  };
+};
+
+const MessageCard = ({
+  unclassifiedTrips,
   unclassifiedTransactions,
   onHideTrips,
-  onHideTransactions 
-}: { 
+  onHideTransactions,
+}: {
   unclassifiedTrips: number;
   unclassifiedTransactions: number;
   onHideTrips: () => void;
   onHideTransactions: () => void;
 }) => {
-  if (unclassifiedTrips === 0 && unclassifiedTransactions === 0) return null;
+  const [tripStats, setTripStats] = useState<TripStats | null>(null);
+  const currentYear = new Date().getFullYear();
+  const screenWidth = Dimensions.get("window").width;
+
+  useEffect(() => {
+    const loadTripStats = async () => {
+      const stats = await fetchTripStats();
+      setTripStats(stats);
+    };
+    loadTripStats();
+  }, []);
+
+  const chartConfig = {
+    backgroundGradientFrom: "#fff",
+    backgroundGradientTo: "#fff",
+    color: (opacity = 1) => `rgba(0, 0, 0, ${opacity})`,
+    strokeWidth: 2,
+    barPercentage: 0.5,
+    useShadowColorFromDataset: false,
+  };
+
+  const pieData = [
+    {
+      name: "WORK",
+      miles: tripStats?.workMiles || 0,
+      color: "#00B8A9",
+      legendFontColor: "#7F7F7F",
+      legendFontSize: 12,
+    },
+    {
+      name: "PERSONAL",
+      miles: tripStats?.personalMiles || 0,
+      color: "#3498DB",
+      legendFontColor: "#7F7F7F",
+      legendFontSize: 12,
+    },
+    {
+      name: "OTHER",
+      miles: tripStats?.otherMiles || 0,
+      color: "#F4A460",
+      legendFontColor: "#7F7F7F",
+      legendFontSize: 12,
+    },
+  ];
 
   return (
-    <>  
-    <View className="flex-1 flex-col mt-6 justify-center">
-      {unclassifiedTrips > 0 && (
-        <View className="bg-white rounded-xl shadow-sm mx-4 my-1">
-          <View className="bg-purple-200 px-2 py-1 rounded-t-xl border-b border-purple-100 flex-row justify-between items-center">
-            <Text className="text-lg font-semibold text-gray-800">
-              Unclassified Trips
-            </Text>
-            <Pressable onPress={onHideTrips} className="p-1">
-              <Ionicons name="close" size={20} color="#4B5563" />
-            </Pressable>
-          </View>
-          <Pressable
-            onPress={() => router.push('/trips')}
-            className="active:opacity-80"
-          >
-            <View className="p-2">
-              <Text className="text-base text-gray-600">
-                You have {unclassifiedTrips} trips need to classify
-              </Text>
+    <>
+      {(unclassifiedTrips > 0 || unclassifiedTransactions > 0) && (
+        <View className="flex-1 flex-col mt-6 justify-center">
+          {unclassifiedTrips > 0 && (
+            <View className="bg-white rounded-xl shadow-sm mx-4 my-1">
+              <View className="bg-orange-600 px-2 py-1 rounded-t-xl border-b border-purple-100 flex-row justify-between items-center">
+                <Text className="text-lg font-semibold text-white">
+                  Unclassified Trips
+                </Text>
+                <Pressable onPress={onHideTrips} className="p-1">
+                  <Ionicons name="close" size={20} color="#4B5563" />
+                </Pressable>
+              </View>
+              <Pressable
+                onPress={() => router.push("/trips")}
+                className="active:opacity-80"
+              >
+                <View className="p-2">
+                  <Text className="text-base text-gray-600">
+                    You have {unclassifiedTrips} trips need to classify
+                  </Text>
+                </View>
+              </Pressable>
             </View>
-          </Pressable>
+          )}
+
+          {unclassifiedTransactions > 0 && (
+            <View className="bg-white rounded-xl shadow-sm mx-4 my-1">
+              <View className="bg-orange-600 px-2 py-1 rounded-t-xl border-b border-purple-100 flex-row justify-between items-center">
+                <Text className="text-lg font-semibold text-white">
+                  Unclassified Transactions
+                </Text>
+                <Pressable onPress={onHideTransactions} className="p-1">
+                  <Ionicons name="close" size={20} color="#4B5563" />
+                </Pressable>
+              </View>
+              <Pressable
+                onPress={() => router.push("/transactions")}
+                className="active:opacity-80"
+              >
+                <View className="p-2">
+                  <Text className="text-base text-gray-600">
+                    You have {unclassifiedTransactions} transactions need to
+                    classify
+                  </Text>
+                </View>
+              </Pressable>
+            </View>
+          )}
         </View>
       )}
 
-      {unclassifiedTransactions > 0 && (
+      {/* Trip Insights Card */}
+      <View className="flex-1 flex-col mt-6 justify-center">
         <View className="bg-white rounded-xl shadow-sm mx-4 my-1">
-          <View className="bg-orange-200 px-2 py-1 rounded-t-xl border-b border-purple-100 flex-row justify-between items-center">
-            <Text className="text-lg font-semibold text-gray-800">
-              Unclassified Transactions
-            </Text>
-            <Pressable onPress={onHideTransactions} className="p-1">
-              <Ionicons name="close" size={20} color="#4B5563" />
-            </Pressable>
-          </View>
-          <Pressable
-            onPress={() => router.push('/transactions')}
-            className="active:opacity-80"
-          >
-            <View className="p-2">
-              <Text className="text-base text-gray-600">
-                You have {unclassifiedTransactions} transactions need to classify
+          <View className="bg-purple-200 px-4 py-3 rounded-t-xl border-b border-purple-100">
+            <View className="flex-row justify-between items-center">
+              <Text className="text-xl font-semibold text-gray-800">
+                Trips Insights
               </Text>
+              <Text className="text-lg text-gray-600">{currentYear}</Text>
             </View>
-          </Pressable>
-        </View>
-      )}
-    </View>
-    <View className="flex-1 flex-col mt-6 justify-center">
-      {/* TODO : 这里需要引入图表组件 -这里是Trips的相关的图表统计 */}
-      <View className="bg-white rounded-xl shadow-sm mx-4 my-1">
-          <View className="bg-purple-200 px-2 py-1 rounded-t-xl border-b border-purple-100 flex-row justify-between items-center">
-            <Text className="text-lg font-semibold text-gray-800">
-               Trips Insights
-            </Text>
-            
           </View>
-          
-            <View className="p-2">
-              <Text className="text-base text-gray-600">
-                //Trips 图表展示区域
+          {/* Stats Overview */}
+
+          <View className="flex-row justify-around mt-4">
+            <View>
+              <Text className="text-3xl font-bold text-blue-600">
+                {tripStats?.totalTrips || 0}
               </Text>
+              <Text className="text-sm text-gray-600 mt-1 text-center">TRIPS</Text>
             </View>
-        </View>
-    </View>
-    <View className="flex-1 flex-col mt-6 justify-center">
-      {/* TODO : 这里需要引入图表组件 -这里是Trips的相关的图表统计 */}
-      <View className="bg-white rounded-xl shadow-sm mx-4 my-1">
-          <View className="bg-purple-200 px-2 py-1 rounded-t-xl border-b border-purple-100 flex-row justify-between items-center">
-            <Text className="text-lg font-semibold text-gray-800">
-                Transactions Insights
-            </Text>
-            
+            <View>
+              <Text className="text-3xl font-bold text-blue-600">
+                {tripStats?.totalKms || 0}
+              </Text>
+              <Text className="text-sm text-gray-600 mt-1 text-center">KM(Total)</Text>
+            </View>
           </View>
-          
-            <View className="p-2">
-              <Text className="text-base text-gray-600">
-                //Transactions 图表展示区域
-              </Text>
+
+          <View className="p-4">
+            {tripStats && (
+              <PieChart
+                data={pieData}
+                width={screenWidth - 48}
+                height={220}
+                chartConfig={chartConfig}
+                accessor="miles"
+                backgroundColor="transparent"
+                paddingLeft="0"
+                absolute
+                hasLegend={false}
+                center={[screenWidth / 4, 0]}
+              />
+            )}
+
+            {/* Legend */}
+            <View className="mt-4">
+              <View className="flex-row items-center mb-2">
+                <View
+                  className="w-3 h-3 rounded-full"
+                  style={{ backgroundColor: "#00B8A9" }}
+                />
+                <Text className="text-sm text-gray-600 ml-2">WORK</Text>
+                <Text className="text-sm text-gray-600 ml-auto">
+                  {tripStats?.workMiles || 0} mi
+                </Text>
+              </View>
+              <View className="flex-row items-center mb-2">
+                <View
+                  className="w-3 h-3 rounded-full"
+                  style={{ backgroundColor: "#3498DB" }}
+                />
+                <Text className="text-sm text-gray-600 ml-2">PERSONAL</Text>
+                <Text className="text-sm text-gray-600 ml-auto">
+                  {tripStats?.personalMiles || 0} mi
+                </Text>
+              </View>
+              <View className="flex-row items-center">
+                <View
+                  className="w-3 h-3 rounded-full"
+                  style={{ backgroundColor: "#F4A460" }}
+                />
+                <Text className="text-sm text-gray-600 ml-2">OTHER</Text>
+                <Text className="text-sm text-gray-600 ml-auto">
+                  {tripStats?.otherMiles || 0} mi
+                </Text>
+              </View>
             </View>
+          </View>
         </View>
-    </View>
+      </View>
     </>
   );
 };
@@ -121,14 +236,14 @@ export default function Dashboard() {
       //   .from('trips')
       //   .select('count', { count: 'exact' })
       //   .eq('status', 'unclassified');
-      
+
       // const { data: transactionsData, error: transactionsError } = await db
       //   .from('transactions')
       //   .select('count', { count: 'exact' })
       //   .eq('status', 'unclassified');
-      
+
       // if (tripsError || transactionsError) throw error;
-      
+
       // setUnclassifiedTrips(tripsData.count);
       // setUnclassifiedTransactions(transactionsData.count);
 
@@ -136,7 +251,7 @@ export default function Dashboard() {
       setUnclassifiedTrips(3);
       setUnclassifiedTransactions(2);
     } catch (error) {
-      console.error('Error fetching unclassified items:', error);
+      console.error("Error fetching unclassified items:", error);
     } finally {
       setLoading(false);
     }
@@ -151,11 +266,13 @@ export default function Dashboard() {
   }
 
   const effectiveTripsCount = showTripsCard ? unclassifiedTrips : 0;
-  const effectiveTransactionsCount = showTransactionsCard ? unclassifiedTransactions : 0;
+  const effectiveTransactionsCount = showTransactionsCard
+    ? unclassifiedTransactions
+    : 0;
 
   return (
     <ScrollView className="flex-1 bg-gray-50">
-      <MessageCard 
+      <MessageCard
         unclassifiedTrips={effectiveTripsCount}
         unclassifiedTransactions={effectiveTransactionsCount}
         onHideTrips={() => setShowTripsCard(false)}
@@ -163,4 +280,4 @@ export default function Dashboard() {
       />
     </ScrollView>
   );
-} 
+}
