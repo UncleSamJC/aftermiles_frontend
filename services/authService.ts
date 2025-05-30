@@ -1,4 +1,6 @@
+import AsyncStorage from '@react-native-async-storage/async-storage';
 import { auth } from './supabasev2';
+
 
 export const authService = {
   signIn: async (email: string, password: string) => {
@@ -46,6 +48,19 @@ export const authService = {
       return { user: data.user };
     } catch (err: any) {
       throw new Error(err.message || 'Sign up failed');
+    }
+  },
+
+  debugPrintAllStorage:async () => {
+    try {
+      const keys = await AsyncStorage.getAllKeys();
+      const result = await AsyncStorage.multiGet(keys);
+  
+      result.forEach(([key, value]) => {
+        console.log(`KEY: ${key}\nVALUE: ${value}\n`);
+      });
+    } catch (e) {
+      console.error('Error reading AsyncStorage:', e);
     }
   }
 }; 

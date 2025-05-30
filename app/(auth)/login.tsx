@@ -36,6 +36,7 @@ export default function Login() {
       const { user } = await authService.signIn(email, password);
       
       console.log('Login successful, user:', user);
+      await authService.debugPrintAllStorage();
       
       if (!user?.email_confirmed_at) {
         Alert.alert(
@@ -87,7 +88,7 @@ export default function Login() {
 
         {/* Content */}
         <View className="flex-1">
-          <Text className="text-2xl text-gray-700 mb-12">
+          <Text className="text-2xl text-gray-700 mb-7">
             Please enter your email and password
           </Text>
 

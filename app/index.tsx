@@ -64,25 +64,6 @@ export default function Index() {
         <View className="space-y-4">
           {/* Login Buttons */}
           <TouchableOpacity 
-            className="w-full bg-teal-500 p-4 rounded-full mb-4"
-            onPress={() => handleLogin('email')}
-          >
-            <Text className="text-white text-center text-lg font-semibold">
-              Continue with Email
-            </Text>
-          </TouchableOpacity>
-
-          <TouchableOpacity 
-            className="w-full bg-white p-4 rounded-full flex-row items-center justify-center space-x-2 mb-4"
-            onPress={() => handleLogin('apple')}
-          >
-            <Ionicons name="logo-apple" size={24} color="black" />
-            <Text className="text-black text-lg font-semibold">
-              Continue with Apple
-            </Text>
-          </TouchableOpacity>
-
-          <TouchableOpacity 
             className="w-full bg-white p-4 rounded-full flex-row items-center justify-center space-x-2"
             onPress={() => handleLogin('google')}
           >
@@ -91,6 +72,28 @@ export default function Index() {
               Continue with Google
             </Text>
           </TouchableOpacity>
+
+          <TouchableOpacity 
+            className="w-full bg-teal-500 p-4 rounded-full mt-4 mb-4"
+            onPress={() => handleLogin('email')}
+          >
+            <Text className="text-white text-center text-lg font-semibold">
+              Continue with Email
+            </Text>
+          </TouchableOpacity>
+
+          {/* TODO: Implement apple login - Don't delete this,saved for the future */}
+          {/* <TouchableOpacity 
+            className="w-full bg-white p-4 rounded-full flex-row items-center justify-center space-x-2 mb-4"
+            onPress={() => handleLogin('apple')}
+          >
+            <Ionicons name="logo-apple" size={24} color="black" />
+            <Text className="text-black text-lg font-semibold">
+              Continue with Apple
+            </Text>
+          </TouchableOpacity> */}
+
+          
 
           {/* Terms Text */}
           <Text className="text-white/80 text-center text-sm mt-4">
