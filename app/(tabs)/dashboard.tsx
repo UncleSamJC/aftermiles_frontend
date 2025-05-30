@@ -17,10 +17,11 @@ const MessageCard = ({
   if (unclassifiedTrips === 0 && unclassifiedTransactions === 0) return null;
 
   return (
-    <>
+    <>  
+    <View className="flex-1 flex-col mt-6 justify-center">
       {unclassifiedTrips > 0 && (
-        <View className="bg-white rounded-xl shadow-sm mx-4 my-6">
-          <View className="bg-purple-50 p-2 rounded-t-xl border-b border-purple-100 flex-row justify-between items-center">
+        <View className="bg-white rounded-xl shadow-sm mx-4 my-1">
+          <View className="bg-purple-200 px-2 py-1 rounded-t-xl border-b border-purple-100 flex-row justify-between items-center">
             <Text className="text-lg font-semibold text-gray-800">
               Unclassified Trips
             </Text>
@@ -42,8 +43,8 @@ const MessageCard = ({
       )}
 
       {unclassifiedTransactions > 0 && (
-        <View className="bg-white rounded-xl shadow-sm mx-4">
-          <View className="bg-purple-50 p-2 rounded-t-xl border-b border-purple-100 flex-row justify-between items-center">
+        <View className="bg-white rounded-xl shadow-sm mx-4 my-1">
+          <View className="bg-orange-200 px-2 py-1 rounded-t-xl border-b border-purple-100 flex-row justify-between items-center">
             <Text className="text-lg font-semibold text-gray-800">
               Unclassified Transactions
             </Text>
@@ -63,6 +64,41 @@ const MessageCard = ({
           </Pressable>
         </View>
       )}
+    </View>
+    <View className="flex-1 flex-col mt-6 justify-center">
+      {/* TODO : 这里需要引入图表组件 -这里是Trips的相关的图表统计 */}
+      <View className="bg-white rounded-xl shadow-sm mx-4 my-1">
+          <View className="bg-purple-200 px-2 py-1 rounded-t-xl border-b border-purple-100 flex-row justify-between items-center">
+            <Text className="text-lg font-semibold text-gray-800">
+               Trips Insights
+            </Text>
+            
+          </View>
+          
+            <View className="p-2">
+              <Text className="text-base text-gray-600">
+                //Trips 图表展示区域
+              </Text>
+            </View>
+        </View>
+    </View>
+    <View className="flex-1 flex-col mt-6 justify-center">
+      {/* TODO : 这里需要引入图表组件 -这里是Trips的相关的图表统计 */}
+      <View className="bg-white rounded-xl shadow-sm mx-4 my-1">
+          <View className="bg-purple-200 px-2 py-1 rounded-t-xl border-b border-purple-100 flex-row justify-between items-center">
+            <Text className="text-lg font-semibold text-gray-800">
+                Transactions Insights
+            </Text>
+            
+          </View>
+          
+            <View className="p-2">
+              <Text className="text-base text-gray-600">
+                //Transactions 图表展示区域
+              </Text>
+            </View>
+        </View>
+    </View>
     </>
   );
 };
