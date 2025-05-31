@@ -1,4 +1,5 @@
-import { Ionicons } from "@expo/vector-icons";
+import CardHeader from "@/components/ui/CardHeader";
+import { LinearGradient } from "expo-linear-gradient";
 import { router } from "expo-router";
 import { useEffect, useState } from "react";
 import { Dimensions, Pressable, ScrollView, Text, View } from "react-native";
@@ -39,6 +40,7 @@ const MessageCard = ({
   const [tripStats, setTripStats] = useState<TripStats | null>(null);
   const currentYear = new Date().getFullYear();
   const screenWidth = Dimensions.get("window").width;
+  const currentMileage = "137456"; // TODO: 这里后续从API获取实际里程数
 
   useEffect(() => {
     const loadTripStats = async () => {
@@ -87,14 +89,11 @@ const MessageCard = ({
         <View className="flex-1 flex-col mt-6 justify-center">
           {unclassifiedTrips > 0 && (
             <View className="bg-white rounded-xl shadow-sm mx-4 my-1">
-              <View className="bg-orange-600 px-2 py-1 rounded-t-xl border-b border-purple-100 flex-row justify-between items-center">
-                <Text className="text-lg font-semibold text-white">
-                  Unclassified Trips
-                </Text>
-                <Pressable onPress={onHideTrips} className="p-1">
-                  <Ionicons name="close" size={20} color="#4B5563" />
-                </Pressable>
-              </View>
+              <CardHeader
+                title="Unclassified Trips"
+                bgColor="bg-orange-600"
+                onClose={onHideTrips}
+              />
               <Pressable
                 onPress={() => router.push("/trips")}
                 className="active:opacity-80"
@@ -110,14 +109,11 @@ const MessageCard = ({
 
           {unclassifiedTransactions > 0 && (
             <View className="bg-white rounded-xl shadow-sm mx-4 my-1">
-              <View className="bg-orange-600 px-2 py-1 rounded-t-xl border-b border-purple-100 flex-row justify-between items-center">
-                <Text className="text-lg font-semibold text-white">
-                  Unclassified Transactions
-                </Text>
-                <Pressable onPress={onHideTransactions} className="p-1">
-                  <Ionicons name="close" size={20} color="#4B5563" />
-                </Pressable>
-              </View>
+              <CardHeader
+                title="Unclassified Transactions"
+                bgColor="bg-orange-600"
+                onClose={onHideTransactions}
+              />
               <Pressable
                 onPress={() => router.push("/transactions")}
                 className="active:opacity-80"
@@ -134,31 +130,61 @@ const MessageCard = ({
         </View>
       )}
 
+      {/* Current Mileage Card */}
+      <View className="flex-1 flex-col mt-6 justify-center">
+        <View className="bg-gray-700 rounded-xl shadow-sm mx-4 my-1">
+          <CardHeader
+            title="Your current mileage"
+            bgColor="bg-gray-700"
+            titleClassName="text-center w-full"
+          />
+          <View className="p-4 flex-row justify-center items-center">
+            {currentMileage.split("").map((digit, index) => (
+              <View
+                key={index}
+                className="mx-0.5 border border-white rounded-sm overflow-hidden"
+                style={{
+                  width: 28,
+                  height: 36,
+                }}
+              >
+                <LinearGradient
+                  colors={["#2d2d2d", "#4a4a4a", "#747A79"]} // 上深、中浅、下深
+                  className="w-full h-full justify-center items-center"
+                >
+                  <Text className="text-white text-3xl font-bold text-center">
+                    {digit}
+                  </Text>
+                </LinearGradient>
+              </View>
+            ))}
+          </View>
+        </View>
+      </View>
+
       {/* Trip Insights Card */}
       <View className="flex-1 flex-col mt-6 justify-center">
         <View className="bg-white rounded-xl shadow-sm mx-4 my-1">
-          <View className="bg-purple-200 px-4 py-3 rounded-t-xl border-b border-purple-100">
-            <View className="flex-row justify-between items-center">
-              <Text className="text-xl font-semibold text-gray-800">
-                Trips Insights
-              </Text>
+          <CardHeader
+            title="Trips Insights"
+            bgColor="bg-purple-200"
+            rightContent={
               <Text className="text-lg text-gray-600">{currentYear}</Text>
-            </View>
-          </View>
+            }
+          />
           {/* Stats Overview */}
-
-          <View className="flex-row justify-around mt-4">
+          <View className="flex-row justify-between mt-4 px-4">
             <View>
               <Text className="text-3xl font-bold text-blue-600">
                 {tripStats?.totalTrips || 0}
               </Text>
-              <Text className="text-sm text-gray-600 mt-1 text-center">TRIPS</Text>
+              <Text className="text-sm text-gray-600 mt-1">TRIPS</Text>
             </View>
             <View>
               <Text className="text-3xl font-bold text-blue-600">
                 {tripStats?.totalKms || 0}
               </Text>
-              <Text className="text-sm text-gray-600 mt-1 text-center">KM(Total)</Text>
+              <Text className="text-sm text-gray-600 mt-1">Kms</Text>
             </View>
           </View>
 
