@@ -1,3 +1,4 @@
+import TripDetail from "@/components/ui/TripDetail";
 import { Ionicons } from "@expo/vector-icons";
 import { useEffect, useState } from "react";
 import { Modal, ScrollView, Text, TouchableOpacity, View } from "react-native";
@@ -11,7 +12,8 @@ export default function Trips() {
   const [showCalendar, setShowCalendar] = useState(false);
   const [selectedStartDate, setSelectedStartDate] = useState<Date | null>(null);
   const [selectedEndDate, setSelectedEndDate] = useState<Date | null>(null);
-
+  const [selectedTripId, setSelectedTripId] = useState<string | null>(null);
+  const [showTripDetail, setShowTripDetail] = useState(false);
   // Mock data for demonstration
   const trips = [
     {
@@ -21,6 +23,13 @@ export default function Trips() {
       startTime: "9:17 AM",
       endTime: "10:17 AM",
       date: "1 Jun, Sunday",
+      startCoords: { latitude: 49.166667, longitude: -123.933333 },
+      endCoords: { latitude: 49.166667, longitude: -123.933333 },
+      routeCoords: [
+        { key: 1, latitude: 49.166667, longitude: -123.933333 },
+        { key: 2, latitude: 49.168, longitude: -123.935 },
+        { key: 3, latitude: 49.17, longitude: -123.94 },
+      ],
     },
   ];
 
@@ -28,7 +37,9 @@ export default function Trips() {
   const getWeekDates = () => {
     const now = new Date();
     const monday = new Date(now);
-    monday.setDate(monday.getDate() - monday.getDay() + (monday.getDay() === 0 ? -6 : 1));
+    monday.setDate(
+      monday.getDate() - monday.getDay() + (monday.getDay() === 0 ? -6 : 1)
+    );
     monday.setHours(0, 0, 0, 0);
 
     const sunday = new Date(monday);
@@ -47,8 +58,8 @@ export default function Trips() {
   };
 
   // 处理日期范围选择
-  const onDateChange = (date: Date, type: 'START_DATE' | 'END_DATE') => {
-    if (type === 'START_DATE') {
+  const onDateChange = (date: Date, type: "START_DATE" | "END_DATE") => {
+    if (type === "START_DATE") {
       setSelectedStartDate(date);
       setSelectedEndDate(null);
     } else {
@@ -60,10 +71,10 @@ export default function Trips() {
   const fetchTrips = async (startDate: Date, endDate: Date) => {
     try {
       // TODO: 实际的API调用
-      const response = await fetch('your-api-endpoint/trips', {
-        method: 'POST',
+      const response = await fetch("your-api-endpoint/trips", {
+        method: "POST",
         headers: {
-          'Content-Type': 'application/json',
+          "Content-Type": "application/json",
         },
         body: JSON.stringify({
           startDate: startDate.toISOString(),
@@ -72,36 +83,36 @@ export default function Trips() {
       });
 
       if (!response.ok) {
-        throw new Error('Failed to fetch trips');
+        throw new Error("Failed to fetch trips");
       }
 
       const data = await response.json();
       // TODO: 处理返回的数据
-      console.log('Fetched trips:', data);
+      console.log("Fetched trips:", data);
     } catch (error) {
-      console.error('Error fetching trips:', error);
+      console.error("Error fetching trips:", error);
     }
   };
 
   // 处理日期选择完成
   const handleDateSelect = () => {
     setShowCalendar(false);
-    if (dateFilter === 'custom' && selectedStartDate && selectedEndDate) {
+    if (dateFilter === "custom" && selectedStartDate && selectedEndDate) {
       //fetchTrips(selectedStartDate, selectedEndDate);
-      console.log('Selected DATE RANGE:', selectedStartDate, selectedEndDate);
+      console.log("Selected DATE RANGE:", selectedStartDate, selectedEndDate);
     }
   };
 
   // 监听日期过滤器变化
   useEffect(() => {
-    if (dateFilter === 'today') {
+    if (dateFilter === "today") {
       const { startOfDay, endOfDay } = getTodayDates();
       //fetchTrips(startOfDay, endOfDay);
-      console.log('Today DATE RANGE:', startOfDay, endOfDay);
-    } else if (dateFilter === 'week') {
+      console.log("Today DATE RANGE:", startOfDay, endOfDay);
+    } else if (dateFilter === "week") {
       const { monday, sunday } = getWeekDates();
       //fetchTrips(monday, sunday);
-      console.log('Week DATE RANGE:', monday, sunday);
+      console.log("Week DATE RANGE:", monday, sunday);
     }
   }, [dateFilter]);
 
@@ -117,7 +128,7 @@ export default function Trips() {
               setSelectedEndDate(null);
             }}
             className={`px-4 py-2 rounded-full ${
-              dateFilter === "today" ? "bg-green-500" : "bg-gray-100"
+              dateFilter === "today" ? "bg-blue-500" : "bg-gray-100"
             }`}
           >
             <Text
@@ -136,7 +147,7 @@ export default function Trips() {
               setSelectedEndDate(null);
             }}
             className={`px-4 py-2 rounded-full ${
-              dateFilter === "week" ? "bg-green-500" : "bg-gray-100"
+              dateFilter === "week" ? "bg-blue-500" : "bg-gray-100"
             }`}
           >
             <Text
@@ -147,17 +158,25 @@ export default function Trips() {
           </TouchableOpacity>
         </View>
 
-        <TouchableOpacity 
+        <TouchableOpacity
           onPress={() => {
             setDateFilter("custom");
             setShowCalendar(true);
-          }} 
-          className="flex-row items-center justify-center space-x-2 p-1"
+          }}
+          className={`flex-row items-center justify-center space-x-2 p-1 px-2 rounded-full ${
+            dateFilter === "custom" ? "bg-blue-500" : "bg-gray-100"
+          } `}
         >
-          <Text className={`text-gray-600 ${dateFilter === "custom" ? "font-semibold" : ""}`}>
+          <Text
+            className={dateFilter === "custom" ? "text-white" : "text-gray-700"}
+          >
             Custom Date
           </Text>
-          <Ionicons name="calendar-outline" size={24} color="#666" />
+          <Ionicons
+            name="calendar-outline"
+            size={24}
+            color={dateFilter === "custom" ? "#fff" : "#374151"}
+          />
         </TouchableOpacity>
       </View>
 
@@ -168,13 +187,24 @@ export default function Trips() {
 
         {/* Trip Items */}
         {trips.map((trip) => (
-          <TripAbstract
+          <TouchableOpacity
             key={trip.id}
-            startLocation={trip.startLocation}
-            endLocation={trip.endLocation}
-            startTime={trip.startTime}
-            endTime={trip.endTime}
-          />
+            onPress={() => {
+              setSelectedTripId(trip.id.toString());
+              setShowTripDetail(true);
+            }}
+          >
+            <TripAbstract
+              key={trip.id}
+              id={trip.id.toString()}
+              startLocation={trip.startLocation}
+              endLocation={trip.endLocation}
+              startTime={trip.startTime}
+              endTime={trip.endTime}
+              startCoords={trip.startCoords}
+              endCoords={trip.endCoords}
+            />
+          </TouchableOpacity>
         ))}
       </ScrollView>
 
@@ -197,9 +227,13 @@ export default function Trips() {
                 onPress={handleDateSelect}
                 disabled={!selectedStartDate || !selectedEndDate}
               >
-                <Text className={`font-semibold ${
-                  selectedStartDate && selectedEndDate ? 'text-green-500' : 'text-gray-300'
-                }`}>
+                <Text
+                  className={`font-semibold ${
+                    selectedStartDate && selectedEndDate
+                      ? "text-green-500"
+                      : "text-gray-300"
+                  }`}
+                >
                   Done
                 </Text>
               </TouchableOpacity>
@@ -211,13 +245,13 @@ export default function Trips() {
               selectedDayColor="#22c55e"
               selectedDayTextColor="#ffffff"
               selectedRangeStartStyle={{
-                backgroundColor: '#22c55e',
+                backgroundColor: "#22c55e",
               }}
               selectedRangeEndStyle={{
-                backgroundColor: '#22c55e',
+                backgroundColor: "#22c55e",
               }}
               selectedRangeStyle={{
-                backgroundColor: '#dcfce7',
+                backgroundColor: "#dcfce7",
               }}
               textStyle={{
                 fontFamily: "System",
@@ -235,13 +269,27 @@ export default function Trips() {
             {selectedStartDate && (
               <View className="px-4 py-2 border-t border-gray-200">
                 <Text className="text-gray-600">
-                  {selectedStartDate.toLocaleDateString()} 
-                  {selectedEndDate ? ` - ${selectedEndDate.toLocaleDateString()}` : ''}
+                  {selectedStartDate.toLocaleDateString()}
+                  {selectedEndDate
+                    ? ` - ${selectedEndDate.toLocaleDateString()}`
+                    : ""}
                 </Text>
               </View>
             )}
           </View>
         </View>
+      </Modal>
+      {/* Trip Detail Modal */}
+      <Modal
+        visible={showTripDetail}
+        animationType="slide" // 关键点
+        transparent={true}
+        onRequestClose={() => setShowTripDetail(false)}
+      >
+        <TripDetail
+          tripId={selectedTripId || ""}
+          onClose={() => setShowTripDetail(false)}
+        />
       </Modal>
     </View>
   );

@@ -12,7 +12,7 @@ AfterMiles 是一个基于 React Native Expo 的移动应用，主要为 Uber �
 - **Supabase (后端数据库和认证)**
 - **NativeWind (Tailwind CSS for React Native)**
 - **React Native Reusables UI库**
-- **Supabase Auth (Google/Apple/Email登录)**
+- **Supabase Auth (Google/Email登录)**
 - **AsyncStorage (本地数据存储)**
 
 ## Get started
