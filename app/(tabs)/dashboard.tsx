@@ -28,14 +28,14 @@ const fetchTripStats = async (): Promise<TripStats> => {
 
 const MessageCard = ({
   unclassifiedTrips,
-  unclassifiedTransactions,
+  unclassifiedExpenses,
   onHideTrips,
-  onHideTransactions,
+  onHideExpenses,
 }: {
   unclassifiedTrips: number;
-  unclassifiedTransactions: number;
+  unclassifiedExpenses: number;
   onHideTrips: () => void;
-  onHideTransactions: () => void;
+  onHideExpenses: () => void;
 }) => {
   const [tripStats, setTripStats] = useState<TripStats | null>(null);
   const currentYear = new Date().getFullYear();
@@ -85,7 +85,7 @@ const MessageCard = ({
 
   return (
     <>
-      {(unclassifiedTrips > 0 || unclassifiedTransactions > 0) && (
+      {(unclassifiedTrips > 0 || unclassifiedExpenses > 0) && (
         <View className="flex-1 flex-col mt-6 justify-center">
           {unclassifiedTrips > 0 && (
             <View className="bg-white rounded-xl shadow-sm mx-4 my-1">
@@ -107,21 +107,20 @@ const MessageCard = ({
             </View>
           )}
 
-          {unclassifiedTransactions > 0 && (
+          {unclassifiedExpenses > 0 && (
             <View className="bg-white rounded-xl shadow-sm mx-4 my-1">
               <CardHeader
-                title="Unclassified Transactions"
+                title="Unclassified Expenses"
                 bgColor="bg-orange-600"
-                onClose={onHideTransactions}
+                onClose={onHideExpenses}
               />
               <Pressable
-                onPress={() => router.push("/transactions")}
+                onPress={() => router.push("/expenses")}
                 className="active:opacity-80"
               >
                 <View className="p-2">
                   <Text className="text-base text-gray-600">
-                    You have {unclassifiedTransactions} transactions need to
-                    classify
+                    You have {unclassifiedExpenses} expenses need to classify
                   </Text>
                 </View>
               </Pressable>
@@ -246,10 +245,10 @@ const MessageCard = ({
 
 export default function Dashboard() {
   const [unclassifiedTrips, setUnclassifiedTrips] = useState(0);
-  const [unclassifiedTransactions, setUnclassifiedTransactions] = useState(0);
+  const [unclassifiedExpenses, setUnclassifiedExpenses] = useState(0);
   const [loading, setLoading] = useState(true);
   const [showTripsCard, setShowTripsCard] = useState(true);
-  const [showTransactionsCard, setShowTransactionsCard] = useState(true);
+  const [showExpensesCard, setShowExpensesCard] = useState(true);
 
   useEffect(() => {
     fetchUnclassifiedItems();
@@ -263,19 +262,19 @@ export default function Dashboard() {
       //   .select('count', { count: 'exact' })
       //   .eq('status', 'unclassified');
 
-      // const { data: transactionsData, error: transactionsError } = await db
-      //   .from('transactions')
+      // const { data: expensesData, error: expensesError } = await db
+      //   .from('expenses')
       //   .select('count', { count: 'exact' })
       //   .eq('status', 'unclassified');
 
-      // if (tripsError || transactionsError) throw error;
+      // if (tripsError || expensesError) throw error;
 
       // setUnclassifiedTrips(tripsData.count);
-      // setUnclassifiedTransactions(transactionsData.count);
+      // setUnclassifiedExpenses(expensesData.count);
 
       // 临时使用模拟数据
       setUnclassifiedTrips(3);
-      setUnclassifiedTransactions(2);
+      setUnclassifiedExpenses(2);
     } catch (error) {
       console.error("Error fetching unclassified items:", error);
     } finally {
@@ -292,17 +291,15 @@ export default function Dashboard() {
   }
 
   const effectiveTripsCount = showTripsCard ? unclassifiedTrips : 0;
-  const effectiveTransactionsCount = showTransactionsCard
-    ? unclassifiedTransactions
-    : 0;
+  const effectiveExpensesCount = showExpensesCard ? unclassifiedExpenses : 0;
 
   return (
     <ScrollView className="flex-1 bg-gray-50">
       <MessageCard
         unclassifiedTrips={effectiveTripsCount}
-        unclassifiedTransactions={effectiveTransactionsCount}
+        unclassifiedExpenses={effectiveExpensesCount}
         onHideTrips={() => setShowTripsCard(false)}
-        onHideTransactions={() => setShowTransactionsCard(false)}
+        onHideExpenses={() => setShowExpensesCard(false)}
       />
     </ScrollView>
   );

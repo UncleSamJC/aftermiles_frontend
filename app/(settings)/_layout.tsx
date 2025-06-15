@@ -15,7 +15,7 @@ export default function SettingsLayout() {
       <Stack.Screen name="hotspot" />
       <Stack.Screen name="places" />
       <Stack.Screen name="not-work" />
-      <Stack.Screen name="transactions" />
+      <Stack.Screen name="expenses" />
       <Stack.Screen name="help" />
     </Stack>
   );

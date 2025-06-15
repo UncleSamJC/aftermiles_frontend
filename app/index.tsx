@@ -3,8 +3,8 @@ import { Image } from "expo-image";
 import { router } from "expo-router";
 import { useState } from "react";
 import { Text, TouchableOpacity, View } from "react-native";
+import { VehicleForm } from "../components/forms/VehicleForm";
 import { BottomSheet } from "../components/ui/BottomSheet";
-import { VehicleForm } from "../components/VehicleForm";
 import { VehicleInfo } from "../types";
 
 const blurhash =

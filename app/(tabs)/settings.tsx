@@ -190,13 +190,12 @@ export default function Settings() {
         rightContent={<Ionicons name="chevron-forward" size={20} color="#C5C5C5" />}
       />
 
-      {/* ==================TRANSACTIONS Section ================== */}
-      <SectionTitle title="TRANSACTIONS" />
+      {/* ==================EXPENSES Section ================== */}
+      <SectionTitle title="EXPENSES" />
       <SettingItem
-        icon={<Ionicons name="card-outline" size={24} color="#4B9CFF" />}
-        title="TRANSACTIONS settings"
-        onPress={() => navigateToSettings('transactions')}
-        rightContent={<Ionicons name="chevron-forward" size={20} color="#C5C5C5" />}
+        icon="wallet-outline"
+        title="EXPENSES settings"
+        onPress={() => navigateToSettings('expenses')}
       />
 
       {/* ==================HELP Section ================== */}
