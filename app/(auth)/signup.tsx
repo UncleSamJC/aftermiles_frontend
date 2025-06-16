@@ -2,7 +2,7 @@ import { Ionicons } from '@expo/vector-icons';
 import { Link, router } from 'expo-router';
 import { useState } from 'react';
 import { Alert, Keyboard, Text, TextInput, TouchableOpacity, TouchableWithoutFeedback, View } from 'react-native';
-import { PrimaryButton } from '../../components/ui/PrimaryButton';
+import { PrimaryButton } from '../../components/common/PrimaryButton';
 import { authService } from '../../services/authService';
 
 export default function Signup() {

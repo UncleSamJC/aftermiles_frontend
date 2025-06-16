@@ -1,3 +1,4 @@
+import { PrimaryButton } from "@/components/common/PrimaryButton";
 import { Ionicons } from "@expo/vector-icons";
 import { useState } from "react";
 import {
@@ -16,29 +17,33 @@ interface AddExpenseProps {
 }
 
 export default function AddExpense({ onClose }: AddExpenseProps) {
-  const [amount, setAmount] = useState("0.00");
+  const [amount, setAmount] = useState('');
   const [vendor, setVendor] = useState("");
   const [date, setDate] = useState(new Date().toISOString().split("T")[0]);
   const [showCategories, setShowCategories] = useState(false);
   const [showCalendar, setShowCalendar] = useState(false);
   const [selectedCategory, setSelectedCategory] = useState("");
 
+  // 处理金额输入的函数
   const handleAmountChange = (text: string) => {
-    // Remove any non-digit characters
-    const numbers = text.replace(/[^0-9]/g, "");
+    // 移除非数字和小数点
+    const cleanedText = text.replace(/[^0-9.]/g, '');
+    
+    // 确保只有一个小数点
+    const parts = cleanedText.split('.');
+    if (parts.length > 2) return;
+    
+    // 限制小数位数为2位
+    if (parts[1] && parts[1].length > 2) return;
+    
+    // 更新金额
+    setAmount(cleanedText);
+  };
 
-    if (numbers.length === 0) {
-      setAmount("0.00");
-      return;
-    }
-
-    // Convert to cents first (to handle decimals)
-    const cents = parseInt(numbers, 10);
-
-    // Convert back to dollars with 2 decimal places
-    const dollars = (cents / 100).toFixed(2);
-
-    setAmount(dollars);
+  // 一个简单的日期格式化函数
+  const formatDateString = (dateString: string) => {
+    const [year, month, day] = dateString.split('-');
+    return `${year}-${month}-${day}`;
   };
 
   return (
@@ -64,13 +69,15 @@ export default function AddExpense({ onClose }: AddExpenseProps) {
             {/* Amount */}
             <View className="items-center mb-6">
               <View className="flex-row items-center">
-                <Text className="text-5xl font-light">$</Text>
+                <Text className="text-4xl font-light">$</Text>
                 <TextInput
-                  className="text-5xl font-light"
-                  keyboardType="numeric"
+                  className="text-4xl font-light"
+                  keyboardType="decimal-pad"
                   value={amount}
                   onChangeText={handleAmountChange}
+
                   style={{ minWidth: 150 }}
+                  placeholder="0.00"
                 />
               </View>
               <TouchableOpacity className="mt-4 p-3 rounded-lg border border-dashed border-gray-300">
@@ -109,7 +116,7 @@ export default function AddExpense({ onClose }: AddExpenseProps) {
                 className="mr-3"
               />
               <Text className="flex-1 text-lg">
-                {new Date(date).toLocaleDateString()}
+                {formatDateString(date)}
               </Text>
             </TouchableOpacity>
 
@@ -122,7 +129,6 @@ export default function AddExpense({ onClose }: AddExpenseProps) {
             >
               <View className="flex-1 bg-black/50 justify-center">
                 <View className="bg-white mx-4 rounded-xl p-4">
-                  // 修改日历回调
                   <Calendar
                     onDayPress={(day) => {
                       setDate(day.dateString); // day.dateString 格式为 'YYYY-MM-DD'
@@ -184,14 +190,7 @@ export default function AddExpense({ onClose }: AddExpenseProps) {
 
           {/* Save Button */}
           <View className="p-4">
-            <TouchableOpacity
-              className="bg-teal-500 p-4 rounded-xl"
-              onPress={onClose}
-            >
-              <Text className="text-white text-center text-lg font-semibold">
-                Save
-              </Text>
-            </TouchableOpacity>
+            <PrimaryButton title="Save" />
           </View>
         </View>
 
